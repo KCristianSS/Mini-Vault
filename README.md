@@ -1,84 +1,93 @@
-# Mini Vault — Agenda de Contraseñas de Servicios
+# Mini Vault - Agenda de Contraseñas Segura
 
-**Proyecto:** Prueba Técnica — *Mini Vault: Agenda de Contraseñas de Servicios*  
-**Curso:** Tecnologías Web II — Universidad Católica Boliviana “San Pablo”.  
-Referencia del enunciado: Documento entregado por la cátedra. :contentReference[oaicite:1]{index=1}
+Este proyecto es una aplicación de gestión de credenciales para servicios en línea (Netflix, Spotify, etc.), desarrollada como parte de la Prueba Técnica para la Universidad Católica Boliviana "San Pablo".
 
----
+## 1. Stack Elegido y Por Qué
 
-## 1. Stack elegido y por qué
-> *Nota:* No se incluye código; aquí se explica la elección de stack sugerida para implementación.
+### Frontend
+- **React 19**: Elegido por su eficiencia en el manejo del estado y su ecosistema robusto.
+- **Tailwind CSS**: Para un diseño rápido, responsivo y altamente personalizable sin salir del HTML/JSX.
+- **Motion (Framer Motion)**: Para proporcionar una experiencia de usuario fluida con animaciones de transición y estados de carga.
+- **Lucide React**: Set de iconos consistente y ligero.
 
-- **Backend:** Node.js + Express (o Fastify) — por rapidez, ecosistema y compatibilidad con JSON Web Tokens.
-- **Base de datos:** PostgreSQL — relacional, ACID, UUID nativo y fácil migración.
-- **Frontend:** React + Vite (o Create React App). Componentes simples y estado local/global según necesidad.
-- **Autenticación:** JWT (acceso con token) o sesiones con cookies (opción).
-- **Cifrado de credenciales:** AES-256-GCM con clave en variable de entorno `ENCRYPTION_KEY`.
-- **Hash de contraseñas de usuarios:** bcrypt (solo hash, no reversible).
-- **Formato de API sugerido:** RESTful (endpoints listados en *API.md*).
+### Backend
+- **Node.js & Express**: Entorno de ejecución estándar para JavaScript en el servidor, ideal para APIs REST rápidas.
+- **JWT (JSON Web Tokens)**: Para una autenticación segura y sin estado (stateless).
+- **Bcrypt.js**: Para el hashing seguro de la contraseña maestra del usuario.
+- **Crypto (AES-256-CBC)**: Para el cifrado reversible de las contraseñas de los servicios, cumpliendo con el requisito de seguridad.
 
-Motivación: stack estándar en web, fácil de montar en local y desplegar en Heroku/Render/Vercel + managed DB.
-
----
-
-## 2. Requisitos para ejecutar (resumen, sin código)
-- Node.js 18+ instalado (si se implementa backend sugerido).
-- PostgreSQL 13+ (o SQLite para desarrollo simplificado).
-- Variables de entorno (ver `.env.example`).
-- Ejecutar migraciones y seed (comandos documentados abajo).
+### Base de Datos
+- **SQLite (via better-sqlite3)**: Se eligió por ser una base de datos relacional ligera que no requiere un servidor externo, facilitando la portabilidad y el despliegue del proyecto técnico, manteniendo persistencia real.
 
 ---
 
-## 3. Variables de entorno (ejemplo)
-Ver `.env.example` incluido en repo.
+## 2. Requisitos para Ejecutar
 
-- `DATABASE_URL` — URL de conexión a BD.
-- `PORT` — puerto del API.
-- `JWT_SECRET` — secreto para firma de JWT.
-- `ENCRYPTION_KEY` — clave para cifrar/descifrar contraseñas de servicios (32 bytes base64 preferible).
-- `NODE_ENV` — development/production.
-- `LOG_LEVEL` — info/debug.
+- **Node.js**: Versión 18.x o superior.
+- **npm**: Versión 9.x o superior.
+- **Sistema Operativo**: Windows, macOS o Linux.
 
 ---
 
-## 4. Migraciones y seed
-- Migraciones: crear tablas `users`, `credentials`, `audit_logs`.
-- Seed: usuarios de prueba (ejemplos abajo), credenciales de prueba para cada usuario.
+## 3. Pasos de Instalación
+
+1.  **Descargar/Clonar el repositorio**:
+    ```bash
+    git clone <url-del-repositorio>
+    cd mini_vault
+    ```
+
+2.  **Instalar dependencias**:
+    ```bash
+    npm install
+    ```
+
+3.  **Configurar variables de entorno**:
+    - Crea un archivo `.env` en la raíz del proyecto.
+    - Puedes basarte en el archivo `.env.example`.
+    - **Importante**: La `ENCRYPTION_KEY` debe tener exactamente 32 caracteres para el cifrado AES-256.
+
+    Ejemplo de `.env`:
+    ```env
+    ENCRYPTION_KEY="una_clave_secreta_de_32_caracteres"
+    JWT_SECRET="mi_secreto_para_tokens_jwt"
+    ```
 
 ---
 
-## 5. Usuarios de prueba (para seed)
-- Usuario 1: `alice@example.com` / `Password123!`
-- Usuario 2: `bob@example.com` / `Password456!`
+## 4. Cómo correr Migraciones / Seed
 
-(En seed real, las contraseñas se guardan hasheadas con bcrypt.)
-
----
-
-## 6. Cómo probar (manual)
-1. Registrar usuario o usar usuario seed.
-2. Login → recibir token/session.
-3. Crear credencial → lista → detalle.
-4. Mostrar contraseña → endpoint explícito que devuelve contraseña descifrada y registra `audit_logs`.
-5. Editar / eliminar credencial.
-6. Comprobar que un usuario no puede acceder a credenciales de otro.
+La aplicación está diseñada para ser **auto-gestionada**:
+- **Migraciones**: No es necesario correr comandos manuales. Al iniciar la aplicación (`npm run dev`), el archivo `src/db.ts` verifica la existencia de las tablas y las crea automáticamente si no existen.
+- **Seed**: No se incluye un script de seed por defecto para garantizar la seguridad de los datos. Se recomienda registrar un usuario nuevo directamente desde la interfaz de "Register".
 
 ---
 
-## 7. Entregables del repositorio (estructura sugerida)
-- `/backend` — backend (implementación opcional)
-- `/frontend` — frontend (implementación opcional)
-- `README.md` (este)
-- `.env.example`
-- `ERD.png` o `ERD.svg`
-- `ARCHITECTURE.md` (diagrama y explicación)
-- `API.md` (especificación de endpoints)
-- `SEEDS.md` (datos de prueba)
-- `EVALUATION.md` (criterios y casos de prueba)
+## 5. Variables de Entorno Requeridas
+
+| Variable | Descripción | Ejemplo |
+| :--- | :--- | :--- |
+| `ENCRYPTION_KEY` | Clave de 32 bytes para cifrar contraseñas de servicios. | `a_very_secret_32_chars_long_key_!!` |
+| `JWT_SECRET` | Clave para firmar los tokens de sesión. | `super_secret_jwt_key` |
+| `GEMINI_API_KEY` | (Opcional) Usada por el entorno de AI Studio. | `AIza...` |
 
 ---
 
-## 8. Notas de seguridad
-- Nunca guardar `ENCRYPTION_KEY` en repositorios.
-- Políticas CORS y rate limiting recomendadas.
-- Logs sensibles: no loguear contraseñas en texto plano.
+## 6. Usuarios de Prueba
+
+No se han pre-cargado usuarios de prueba por razones de seguridad (hashing de contraseñas). 
+**Instrucciones para probar:**
+1. Inicia la app con `npm run dev`.
+2. Ve a la pestaña **"Register"**.
+3. Crea una cuenta con cualquier correo y contraseña.
+4. Inicia sesión con esas credenciales para acceder a tu bóveda personal.
+
+---
+
+## Ejecución en Desarrollo
+
+Para iniciar el servidor y el cliente simultáneamente:
+```bash
+npm run dev
+```
+La aplicación estará disponible en `http://localhost:3000`.
