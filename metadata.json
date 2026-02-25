@@ -1,0 +1,5 @@
+{
+  "name": "Mini Vault",
+  "description": "A secure password manager for online services with audit logging and reversible encryption.",
+  "requestFramePermissions": []
+}
